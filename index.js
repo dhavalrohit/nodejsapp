@@ -1,34 +1,39 @@
-
-const http = require('http');
 const WebSocket = require('ws');
+const server = new WebSocket.Server({ port: 9999 });
 
-// Create an HTTP server
-const httpServer = http.createServer((req, res) => {
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end('HTTP Server is running');
-});
+// Array to store connected clients
+const clients = [];
 
-// Create a WebSocket server
-const wss = new WebSocket.Server({ server: httpServer });
+server.on('connection', (socket) => {
+    console.log('A new client connected!');
+	
+    // Add the new client to the array
+    clients.push(socket);
 
-wss.on('connection', (socket) => {
-    console.log('A new WebSocket client connected!');
-    
-    // Handle messages from WebSocket clients
+    // Send a welcome message to the new client
+    socket.send('Welcome to the WebSocket server!');
+
+    // Handle messages from clients
     socket.on('message', (message) => {
-        console.log(`Received message from WebSocket client: ${message}`);
-        // Echo the message back to the client
-        socket.send('Echo from WebSocket server: ' + message);
+        console.log(`Received message: ${message}`);
+        // Send a response back to the client
+        socket.send('Message received: ' + message);
+
+        // Broadcast the message to all connected clients
+        broadcast('Message From Client: ' + message);
     });
 
     // Handle disconnection
     socket.on('close', () => {
-        console.log('WebSocket client disconnected');
+        console.log('Client disconnected');
+        // Remove the disconnected client from the array
+        clients.splice(clients.indexOf(socket), 1);
     });
 });
 
-// Start the HTTP server listening on port 9999
-const PORT = process.env.PORT || 9999;
-httpServer.listen(PORT, () => {
-    console.log(`HTTP Server is running on port ${PORT}`);
-});
+// Function to broadcast messages to all connected clients
+function broadcast(message) {
+    clients.forEach((client) => {
+        client.send(message);
+    });
+}
