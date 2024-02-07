@@ -1,5 +1,6 @@
+import ws
 const http = require('http');
-const socketIo = require('socket.io');
+const WebSocket = require('ws');
 
 // Create an HTTP server
 const httpServer = http.createServer((req, res) => {
@@ -7,10 +8,10 @@ const httpServer = http.createServer((req, res) => {
     res.end('HTTP Server is running');
 });
 
-// Attach socket.io to the HTTP server
-const io = socketIo(httpServer);
+// Create a WebSocket server
+const wss = new WebSocket.Server({ server: httpServer });
 
-io.on('connection', (socket) => {
+wss.on('connection', (socket) => {
     console.log('A new WebSocket client connected!');
     
     // Handle messages from WebSocket clients
@@ -21,7 +22,7 @@ io.on('connection', (socket) => {
     });
 
     // Handle disconnection
-    socket.on('disconnect', () => {
+    socket.on('close', () => {
         console.log('WebSocket client disconnected');
     });
 });
