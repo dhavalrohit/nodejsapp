@@ -1,5 +1,5 @@
 const http = require('http');
-const WebSocket = require('ws');
+const socketIo = require('socket.io');
 
 // Create an HTTP server
 const httpServer = http.createServer((req, res) => {
@@ -7,10 +7,10 @@ const httpServer = http.createServer((req, res) => {
     res.end('HTTP Server is running');
 });
 
-// Create a WebSocket server
-const wss = new WebSocket.Server({ server: httpServer });
+// Attach socket.io to the HTTP server
+const io = socketIo(httpServer);
 
-wss.on('connection', (socket) => {
+io.on('connection', (socket) => {
     console.log('A new WebSocket client connected!');
     
     // Handle messages from WebSocket clients
@@ -21,13 +21,13 @@ wss.on('connection', (socket) => {
     });
 
     // Handle disconnection
-    socket.on('close', () => {
+    socket.on('disconnect', () => {
         console.log('WebSocket client disconnected');
     });
 });
 
-// Start the HTTP server listening on port 3000
-const PORT = process.env.PORT || 3000;
+// Start the HTTP server listening on port 9999
+const PORT = process.env.PORT || 9999;
 httpServer.listen(PORT, () => {
     console.log(`HTTP Server is running on port ${PORT}`);
 });
