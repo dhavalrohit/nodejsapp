@@ -1,19 +1,30 @@
+
+const http = require('http');
 const WebSocket = require('ws');
-const server = new WebSocket.Server({ port: process.env.PORT || 9999, host: '0.0.0.0' });
+
+// Create an HTTP server
+const httpServer = http.createServer((req, res) => {
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end('HTTP Server is running');
+});
+
+// Create a WebSocket server
+const wss = new WebSocket.Server({ server: httpServer });
 
 // Array to store connected clients
 const clients = [];
 
-server.on('connection', (socket) => {
-    console.log('A new client connected!');
-    
-    // Add the new client to the array
+wss.on('connection', (socket) => {
+    console.log('A new WebSocket client connected!');
+
+     // Add the new client to the array
     clients.push(socket);
 
     // Send a welcome message to the new client
     socket.send('Welcome to the WebSocket server!');
 
-    // Handle messages from clients
+    
+      // Handle messages from clients
     socket.on('message', (message) => {
         console.log(`Received message: ${message}`);
         // Send a response back to the client
@@ -25,15 +36,12 @@ server.on('connection', (socket) => {
 
     // Handle disconnection
     socket.on('close', () => {
-        console.log('Client disconnected');
-        // Remove the disconnected client from the array
-        clients.splice(clients.indexOf(socket), 1);
+        console.log('WebSocket client disconnected');
     });
 });
 
-// Function to broadcast messages to all connected clients
-function broadcast(message) {
-    clients.forEach((client) => {
-        client.send(message);
-    });
-}
+// Start the HTTP server listening on port 9999
+const PORT = process.env.PORT || 9999;
+httpServer.listen(PORT, () => {
+    console.log(`HTTP Server is running on port ${PORT}`);
+});
