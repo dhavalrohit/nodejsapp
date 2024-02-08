@@ -30,6 +30,9 @@ wss.on('connection', (socket) => {
         // Send a response back to the client
         socket.send('Message received: ' + message);
 
+        // Broadcast the message to all connected clients
+        broadcast('Message From Client: ' + message);
+
     });
 
     // Handle disconnection
@@ -37,6 +40,14 @@ wss.on('connection', (socket) => {
         console.log('WebSocket client disconnected');
     });
 });
+
+// Function to broadcast messages to all connected clients
+function broadcast(message) {
+    clients.forEach((client) => {
+        client.send(message);
+    });
+}
+
 
 // Start the HTTP server listening on port 9999
 const PORT = process.env.PORT || 9999;
