@@ -30,8 +30,6 @@ wss.on('connection', (socket) => {
         // Send a response back to the client
         socket.send('Message received: ' + message);
 
-        // Broadcast the message to all connected clients
-        broadcast('Message From Client: ' + message);
     });
 
     // Handle disconnection
